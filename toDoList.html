@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>To-Do List</title>
+  <style>
+    ul {
+      list-style-type: none;
+    }
+    li {
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+    }
+    .task-checkbox {
+      margin-right: 10px;
+    }
+    button {
+      margin-left: 5px;
+    }
+    .completed span {
+      text-decoration: line-through;
+    }
+    .timestamp {
+      font-size: 12px;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>To-Do List</h1>
+  <form id="taskForm">
+    <input type="text" id="taskInput" placeholder="Enter a task">
+    <button type="submit">Add Task</button>
+    <button type="button" onclick="generateRandomTask()">Random Task</button>
+  </form>
+  <ul id="taskList"></ul>
+
+  <script>
+    //Function to add a new task
+    function addTask(event) {
+      event.preventDefault();
+      var taskInput = document.getElementById('taskInput');
+      var task = taskInput.value.trim();
+      if (task !== '') {
+        var taskList = document.getElementById('taskList');
+        var taskId = Date.now().toString(); //Generate a unique ID for the task
+        var newTask = document.createElement('li');
+        newTask.id = taskId;
+        newTask.innerHTML = '<input type="checkbox" class="task-checkbox" onchange="toggleTask(this)"><span>' + task + '</span><span class="timestamp">Added: ' + getTimestamp() + '</span><button onclick="moveTaskUp(this)" title="Move Up">&#8593;</button><button onclick="moveTaskDown(this)" title="Move Down">&#8595;</button><button onclick="deleteTask(this)" title="Delete">&#10006;</button>';
+        taskList.appendChild(newTask);
+        taskInput.value = '';
+        saveTasks();
+      }
+    }
+
+function generateRandomTask() {
+  var sampleTasks = [
+  'Throw out the trash',
+  'Clean your room',
+  'Drink water',
+  'Do push ups',
+  'Write a poem',
+  'Read a book',
+  'Call a friend',
+  'Go for a walk',
+  'Try a new recipe',
+  'Learn a new word',
+  'Practice meditation',
+  'Go grocery shopping',
+  'Do laundry',
+  'Write a journal entry',
+  'Practice a musical instrument',
+  'Organize your workspace',
+  'Try a new hobby',
+  'Watch a TED Talk',
+  'Plan your day',
+  'Write a thank-you note',
+  'Take a walk in nature',
+  'Practice deep breathing',
+  'Read a motivational quote',
+  'Stretch your body',
+  'Volunteer for a cause',
+  'Listen to your favorite music',
+  'Solve a puzzle',
+  'Write down your goals',
+  'Explore a new neighborhood',
+  'Do a random act of kindness',
+  'Create a playlist',
+  'Write a letter to yourself',
+  'Take a digital detox',
+  'Explore a new genre of music',
+  'Learn a new dance move',
+  'Write a gratitude list',
+  'Take a scenic drive',
+  'Plant flowers or herbs',
+  'Watch a classic movie',
+  'Visit a local museum',
+  'Learn a magic trick',
+  'Write a short story',
+  'Visit a farmer\'s market',
+  'Experiment with a new hairstyle',
+  'Explore a new park or trail',
+  'Take a yoga class',
+  'Try a new type of cuisine',
+  'Learn a foreign language phrase',
+  'Start a DIY project',
+  'Create a vision board',
+  'Take a photography walk',
+  'Try a new painting technique',
+  'Visit a local art gallery',
+  'Cook a homemade pizza',
+  'Write a song or compose music',
+  'Practice yoga for 20 minutes',
+  'Research a historical event',
+  'Try a new type of tea or coffee',
+  'Learn a magic card trick',
+  'Have a picnic in a nearby park',
+  'Take a dance class',
+  'Learn a new DIY craft',
+  'Explore a new hiking trail',
+  'Write a letter to a loved one',
+  'Visit a botanical garden',
+  'Try a new board game or puzzle',
+  'Take a scenic bike ride',
+  'Write a short comedy sketch'
+  ];
+  var randomIndex = Math.floor(Math.random() * sampleTasks.length);
+  var randomTask = sampleTasks[randomIndex];
+  var taskList = document.getElementById('taskList');
+  var taskId = Date.now().toString();
+  var newTask = document.createElement('li');
+  newTask.id = taskId;
+  newTask.innerHTML = '<input type="checkbox" class="task-checkbox" onchange="toggleTask(this)"><span>' + randomTask + '</span><span class="timestamp">Added: ' + getTimestamp() + '</span><button onclick="moveTaskUp(this)" title="Move Up">&#8593;</button><button onclick="moveTaskDown(this)" title="Move Down">&#8595;</button><button onclick="deleteTask(this)" title="Delete">&#10006;</button>';
+  taskList.appendChild(newTask);
+  saveTasks();
+}
+
+    function deleteTask(deleteButton) {
+      var taskItem = deleteButton.parentNode;
+      taskItem.parentNode.removeChild(taskItem);
+      saveTasks();
+    }
+
+    function moveTaskUp(button) {
+      var taskItem = button.parentNode;
+      var previousTaskItem = taskItem.previousElementSibling;
+      if (previousTaskItem) {
+        taskItem.parentNode.insertBefore(taskItem, previousTaskItem);
+        saveTasks();
+      }
+    }
+
+    function moveTaskDown(button) {
+      var taskItem = button.parentNode;
+      var nextTaskItem = taskItem.nextElementSibling;
+      if (nextTaskItem) {
+        taskItem.parentNode.insertBefore(nextTaskItem, taskItem);
+        saveTasks();
+      }
+    }
+
+    function toggleTask(checkbox) {
+      var taskItem = checkbox.parentNode;
+      taskItem.classList.toggle('completed');
+      saveTasks();
+    }
+
+    //Function to save tasks to local storage
+    function saveTasks() {
+      var tasks = [];
+      var taskList = document.getElementById('taskList').getElementsByTagName('li');
+      for (var i = 0; i < taskList.length; i++) {
+        var taskId = taskList[i].id;
+        var taskText = taskList[i].querySelector('span').innerText;
+        var taskCompleted = taskList[i].classList.contains('completed');
+        var taskTimestamp = taskList[i].querySelector('.timestamp').innerText;
+        tasks.push({
+          id: taskId,
+          text: taskText,
+          completed: taskCompleted,
+          timestamp: taskTimestamp
+        });
+      }
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    //Function to load tasks from local storage
+    function loadTasks() {
+      var savedTasks = localStorage.getItem('tasks');
+      if (savedTasks) {
+        var tasks = JSON.parse(savedTasks);
+        var taskList = document.getElementById('taskList');
+        taskList.innerHTML = ''; //Clear existing tasks
+        for (var i = 0; i < tasks.length; i++) {
+          var newTask = document.createElement('li');
+          newTask.id = tasks[i].id;
+          newTask.innerHTML = '<input type="checkbox" class="task-checkbox" onchange="toggleTask(this)"><span>' + tasks[i].text + '</span><span class="timestamp">' + tasks[i].timestamp + '</span><button onclick="moveTaskUp(this)" title="Move Up">&#8593;</button><button onclick="moveTaskDown(this)" title="Move Down">&#8595;</button><button onclick="deleteTask(this)" title="Delete">&#10006;</button>';
+          if (tasks[i].completed) {
+            newTask.classList.add('completed');
+            newTask.querySelector('input[type="checkbox"]').checked = true;
+          }
+          taskList.appendChild(newTask);
+        }
+      }
+    }
+
+    function getTimestamp() {
+      var now = new Date();
+      var month = (now.getMonth() + 1).toString();
+      var day = now.getDate().toString();
+      var year = now.getFullYear().toString().slice(-2);
+      var hours = now.getHours().toString().padStart(2, '0');
+      var minutes = now.getMinutes().toString().padStart(2, '0');
+      var period = hours >= 12 ? 'PM' : 'AM';
+      hours = (hours % 12) || 12;
+      return month + '/' + day + '/' + year + ' ' + hours + ':' + minutes + ' ' + period;
+    }
+
+    var taskForm = document.getElementById('taskForm');
+    taskForm.addEventListener('submit', addTask);
+
+    //Load tasks from local storage
+    window.addEventListener('load', loadTasks);
+  </script>
+</body>
+</html>
+
